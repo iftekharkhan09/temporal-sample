@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation "io.temporal:temporal-sdk:1.17.0"
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
+    testImplementation("io.temporal:temporal-testing:1.17.0")
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.14.1'
+    implementation 'io.perfmark:perfmark-api:0.26.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": 'org.example.refundStatusSync.RefundStatusSyncSaga'
+    }
+    baseName = 'temporal-sample'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+task execute(type: JavaExec) {
+    main = findProperty("mainClass") ?: ""
+    classpath = sourceSets.main.runtimeClasspath
+}
